@@ -41,6 +41,8 @@ class LearningAgent(Agent):
             self.epsilon = 0
             self.alpha = 0
         # Update epsilon using a decay function of your choice
+        # --> in simulator.py script
+
         # Update additional class parameters as needed
         # If 'testing' is True, set epsilon and alpha to 0
 
