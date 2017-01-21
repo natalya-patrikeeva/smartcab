@@ -56,6 +56,8 @@ class LearningAgent(Agent):
         # Collect data about the environment
         waypoint = self.planner.next_waypoint() # The next waypoint
         inputs = self.env.sense(self)           # Visual input - intersection light and traffic
+
+        inputs.pop('right')
         #deadline = self.env.get_deadline(self)  # Remaining deadline
 
         ###########
@@ -119,11 +121,25 @@ class LearningAgent(Agent):
             #print "valid actions ", self.valid_actions
             print "Q table for this state: ", self.Q[str(state)]
             print "max Q value for this state: ",  max(self.Q[str(state)].values())
-            print "max Q action: ", max(self.Q[str(state)], key=lambda key: self.Q[str(state)][key])
+
+            highestQactions = list()
+            for key, value in self.Q[str(state)].iteritems():
+
+                if value == max(self.Q[str(state)].values()):
+                    highestQactions.append(key)
+
+            print "max Q actions: ", highestQactions
+
+            #print "max Q action: ", max(self.Q[str(state)], key=lambda key: self.Q[str(state)][key])
+
 
             learning_actions = list(range(5))
             learning_actions[:4] = self.valid_actions
-            learning_actions[4] = max(self.Q[str(state)], key=lambda key: self.Q[str(state)][key])
+
+            learning_actions[4] = random.choice(highestQactions)
+            print "max Q action: ", learning_actions[4]
+
+            #learning_actions[4] = max(self.Q[str(state)], key=lambda key: self.Q[str(state)][key])
 
             # valid_actions: [None, 'forward', 'left', 'right']
             weights = [0.25*self.epsilon, 0.25*self.epsilon, 0.25*self.epsilon, 0.25*self.epsilon, (1 - self.epsilon)]
@@ -151,15 +167,12 @@ class LearningAgent(Agent):
         # Implement Bellman equation
         # Use only the learning rate 'alpha' (do not use the discount factor 'gamma')
 
-        # Q(state, action) = R(state, action) + Gamma * Max[Q(next state, all actions)]
         # Select one among all possible actions for the current state.
         # Using this possible action, consider going to the next state.
         # Get maximum Q value for this next state based on all possible actions.
-        next_state = self.build_state()
+        if self.learning:
 
-        print "next state: ", next_state
-
-        self.Q[str(state)][action] = reward + self.alpha * self.get_maxQ(str(next_state))
+            self.Q[str(state)][action] = self.get_maxQ(str(state)) + self.alpha * ( reward - self.get_maxQ(str(state)) )
 
         return
 
@@ -199,8 +212,7 @@ def run():
     #    * epsilon - continuous value for the exploration factor, default is 1
     #    * alpha   - continuous value for the learning rate, default is 0.5
     #
-    # Optimized: alpha = 0.3
-    agent = env.create_agent(LearningAgent, learning = True, alpha = 0.25)
+    agent = env.create_agent(LearningAgent, learning = True)
 
     ##############
     # Follow the driving agent
@@ -215,14 +227,16 @@ def run():
     #   display      - set to False to disable the GUI if PyGame is enabled
     #   log_metrics  - set to True to log trial and simulation results to /logs
     #   optimized    - set to True to change the default log file name
-    sim = Simulator(env, update_delay = 0.01, log_metrics = True, optimized = True)
+    sim = Simulator(env, update_delay = 0.01, log_metrics = True, optimized = False, display=False)
 
     ##############
     # Run the simulator
     # Flags:
     #   tolerance  - epsilon tolerance before beginning testing, default is 0.05
     #   n_test     - discrete number of testing trials to perform, default is 0
-    sim.run(n_test = 10)
+    #
+    # Optimized: n_test = 20, tolerance = 0.03
+    sim.run(n_test = 20, tolerance = 0.03)
 
 
 if __name__ == '__main__':
