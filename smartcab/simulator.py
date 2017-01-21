@@ -157,12 +157,12 @@ class Simulator(object):
 
             # Linear decay function for epsilon. Epsilon decreases to tolerance 0.05 as
             # trail number increases
-            # a.epsilon = 1.00 - ( trial - 1 ) * 0.05
-            # a.alpha = 0.5
+            a.epsilon = 1.00 - ( trial - 1 ) * 0.05
+            a.alpha = 0.5
 
             # Decaying functions epsilon and alpha for optimized learning
-            a.epsilon = 0.99 ** trial
-            a.alpha = 0.4 * np.exp(0.002 * trial)
+            #a.epsilon = 0.99 ** trial
+            #a.alpha = 0.4 * np.exp(0.002 * trial)
 
             self.env.reset(testing)
             self.current_time = 0.0

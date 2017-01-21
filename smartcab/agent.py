@@ -172,7 +172,7 @@ class LearningAgent(Agent):
         # Get maximum Q value for this next state based on all possible actions.
         if self.learning:
 
-            self.Q[str(state)][action] = self.get_maxQ(str(state)) + self.alpha * ( reward - self.get_maxQ(str(state)) )
+            self.Q[str(state)][action] = self.Q[str(state)][action] + self.alpha * ( reward - self.Q[str(state)][action] )
 
         return
 
@@ -236,7 +236,7 @@ def run():
     #   n_test     - discrete number of testing trials to perform, default is 0
     #
     # Optimized: n_test = 20, tolerance = 0.03
-    sim.run(n_test = 20, tolerance = 0.03)
+    sim.run(n_test = 10, tolerance = 0.05)
 
 
 if __name__ == '__main__':
